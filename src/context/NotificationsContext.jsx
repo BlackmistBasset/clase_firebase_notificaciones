@@ -1,22 +1,43 @@
+import {
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+  setDoc,
+  addDoc,
+} from "firebase/firestore";
 import { createContext, useState, useEffect } from "react";
 
+import { db } from "../../firebase";
 export const NotificationsContext = createContext();
 
 export const NotificationsProvider = ({ children }) => {
   const [notificationsArray, setNotificationsArray] = useState([]);
   const [notificationsCounter, setNotificationsCounter] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const getNotifications = () => {
-    // axios.get("/notificaciones").then((response) => {
-    //   console.log(response);
-    //   setNotificationsArray(response.data);
-    //   setIsLoading(false);
-    // });
-  };
+  // const getNotifications = () => {
+  // axios.get("/notificaciones").then((response) => {
+  //   console.log(response);
+  //   setNotificationsArray(response.data);
+  //   setIsLoading(false);
+  // });
+  // };
 
   useEffect(() => {
-    getNotifications();
+    const getAllNotifications = async () => {
+      const collectionReference = collection(db, "notificaciones");
+      const dataArray = await getDocs(collectionReference);
+      console.log(dataArray);
+      const newNotificationsArray = dataArray.docs.map((notification) => {
+        return { ...notification.data(), id: notification.id };
+      });
+      setNotificationsArray(newNotificationsArray);
+    };
+
+    getAllNotifications();
   }, []);
 
   useEffect(() => {
@@ -30,29 +51,41 @@ export const NotificationsProvider = ({ children }) => {
     });
   }, [notificationsArray]);
 
-  const handleSendNotification = (notification, notificationType) => {
-    axios
-      .post("/notificaciones", {
-        notificationMessage: notification,
-        seen: false,
-        notificationType: notificationType,
-      })
-      .then(function (response) {
-        console.log(response);
-      })
-      .finally(() => getNotifications());
+  const handleSendNotification = async (notification, notificationType) => {
+    // axios
+    //   .post("/notificaciones", {
+    //     notificationMessage: notification,
+    //     seen: false,
+    //     notificationType: notificationType,
+    //   })
+    //   .then(function (response) {
+    //     console.log(response);
+    //   })
+    // .finally(() => getNotifications());
+    const collectionRef = collection(db, "notificaciones");
+    await addDoc(collectionRef, {
+      notificationMessage: notification,
+      seen: false,
+      notificationType: notificationType,
+    });
   };
 
-  const handleMarkAsSeen = (notificationId) => {
-    axios
-      .put(`/notificaciones/${notificationId}`, { seen: true })
-      .finally(() => getNotifications());
+  const handleMarkAsSeen = async (notificationId) => {
+    // axios
+    //   .put(`/notificaciones/${notificationId}`, { seen: true })
+    //   .finally(() => getNotifications());
+    const notificationRef = doc(db, "notificaciones", notificationId);
+    const notificationFound = await getDoc(notificationRef);
+    console.log(notificationFound.data(), notificationId, notificationFound.id);
+    await updateDoc(notificationRef, { seen: true });
   };
 
-  const handleDeleteNotification = (notificationId) => {
-    axios
-      .delete(`/notificaciones/${notificationId}`)
-      .finally(() => getNotifications());
+  const handleDeleteNotification = async (notificationId) => {
+    // axios
+    //   .delete(`/notificaciones/${notificationId}`)
+    //   .finally(() => getNotifications());
+    const notificationRef = doc(db, "notificaciones", notificationId);
+    await deleteDoc(notificationRef);
   };
 
   const handleDeleteNotifications = () => {
