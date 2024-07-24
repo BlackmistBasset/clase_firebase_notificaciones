@@ -7,6 +7,7 @@ import {
   deleteDoc,
   setDoc,
   addDoc,
+  onSnapshot,
 } from "firebase/firestore";
 import { createContext, useState, useEffect } from "react";
 
@@ -18,26 +19,15 @@ export const NotificationsProvider = ({ children }) => {
   const [notificationsCounter, setNotificationsCounter] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  // const getNotifications = () => {
-  // axios.get("/notificaciones").then((response) => {
-  //   console.log(response);
-  //   setNotificationsArray(response.data);
-  //   setIsLoading(false);
-  // });
-  // };
-
   useEffect(() => {
-    const getAllNotifications = async () => {
-      const collectionReference = collection(db, "notificaciones");
-      const dataArray = await getDocs(collectionReference);
-      console.log(dataArray);
-      const newNotificationsArray = dataArray.docs.map((notification) => {
+    const collectionReference = collection(db, "notificaciones");
+    console.log("no-bucle");
+    onSnapshot(collectionReference, (data) => {
+      const newNotificationsArray = data?.docs?.map((notification) => {
         return { ...notification.data(), id: notification.id };
       });
       setNotificationsArray(newNotificationsArray);
-    };
-
-    getAllNotifications();
+    });
   }, []);
 
   useEffect(() => {
