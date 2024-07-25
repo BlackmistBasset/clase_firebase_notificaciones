@@ -16,7 +16,7 @@ export const Navbar = () => {
   return (
     <>
       <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="static">
+        <AppBar position="static" sx={{ backgroundColor: "violet" }}>
           <Toolbar>
             <Box sx={{ flexGrow: 1 }} />
             <Box sx={{ display: "flex" }}>
