@@ -38,7 +38,7 @@ export const Navbar = () => {
           <Toolbar>
             <Box sx={{ flexGrow: 1 }} />
             <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Typography>Hola, {user.username}</Typography>
+              {user && <Typography>Hola, {user?.username}</Typography>}
               <IconButton
                 onClick={handleLogOut}
                 sx={{ color: "white", width: "52px" }}
